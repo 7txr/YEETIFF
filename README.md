@@ -1,588 +1,230 @@
-# YEETIFF - Yet Even Extremely Expressier Transcoded Image File Format.
-
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.0-blue.svg)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+# YEETIFF
 
-**A modern, educational image format with transparency, compression, and animation support**
+**Yet Even Extremely Expressier Transcoded Image File Format**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Installation](#-installation) • [Contributing](#-contributing)
+[![Version](https://img.shields.io/badge/version-2.0-blue?style=flat-square)](https://github.com/7txr/YEETIFF/releases)
+[![Rust](https://img.shields.io/badge/Rust-1.70%2B-orange?style=flat-square&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Python](https://img.shields.io/badge/Python-3.x-3670A0?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
+[![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)](https://github.com/7txr/YEETIFF)
 
----
+An open, well-documented image format built from scratch to explore binary encoding, compression algorithms, and file format design at the byte level.
 
-### 🎓 Educational • 🔬 Experimental • 🚀 Modern • 📖 Well-Documented
+[Specification](#format-specification) · [Quick Start](#quick-start) · [Docs](docs/) · [Releases](https://github.com/7txr/YEETIFF/releases)
 
 </div>
 
 ---
 
-## 📖 Overview
+## Overview
 
-YEETIFF (YEET Image Format) is an **open-source educational project** designed to demonstrate modern image format concepts including:
+YEETIFF is a custom image container format and toolchain written in **Rust**, with a **Python**-based Windows installer. It was built as a deep-dive into how image formats actually work — headers, compression pipelines, metadata schemas, and binary encoding — rather than relying on existing format internals as a black box.
 
-- 🎨 **Full RGBA transparency** - True alpha channel support
-- 🗜️ **Smart compression** - zlib (v2), Brotli/Zstd (v3 planned)
-- 💾 **Flexible encoding** - Human-readable hex or efficient binary
-- 📊 **Rich metadata** - JSON-based extensible metadata
-- 🎬 **Animation support** - Multi-frame sequences (v3 planned)
-- 🌈 **Color management** - ICC profiles (v3 planned)
+The project ships three format generations in parallel: a stable v2 implementation, a legacy v1 compatibility layer, and an experimental v3 branch exploring ICC color profiles and multi-frame animation.
 
-### Why YEET?
+**Capabilities (v2 stable):**
 
-YEET was created as an **educational tool** to help developers understand:
-
-- How image formats work at the byte level
-- Compression algorithms and their trade-offs
-- Color space management and ICC profiles
-- The evolution from simple (v1) to complex (v3) formats
-
-**Perfect for:** CS students, format designers, compression enthusiasts, and curious developers!
+- Full **RGBA** transparency — true alpha channel, not bitmask
+- **zlib compression** — 40–80% size reduction depending on image content
+- Dual encoding modes — human-readable hex or compact binary
+- **JSON metadata** block — author, timestamp, and arbitrary key-value pairs
+- Batch conversion of entire directories in a single command
+- **OpenGL-accelerated GUI viewer** built on `egui` / `eframe`
+- Windows installer with file association registration via `pywin32`
+- Backward-compatible v1 reader
 
 ---
 
-## ✨ Features
+## Project Structure
 
-### Current (v2.0 - Stable)
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **RGBA Support** | ✅ | Full alpha channel transparency |
-| **Compression** | ✅ | zlib compression (40-60% reduction) |
-| **Binary Mode** | ✅ | Efficient binary encoding |
-| **Metadata** | ✅ | JSON metadata (author, timestamp, etc.) |
-| **Batch Convert** | ✅ | Process entire folders at once |
-| **GUI Viewer** | ✅ | OpenGL-accelerated viewer with egui |
-| **Cross-Platform** | ✅ | Windows, macOS, Linux support |
-| **v1 Compatible** | ✅ | Reads legacy v1 format |
-
-### Planned (v3.0 - In Development)
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **ICC Profiles** | 🚧 | Accurate color reproduction |
-| **Animations** | 🚧 | Multi-frame sequences (like GIF/APNG) |
-| **HDR Support** | 📋 | 16-bit per channel |
-| **Brotli/Zstd** | 📋 | Better compression algorithms |
-| **Extended EXIF** | 📋 | Camera metadata |
-
----
-
-## 🚀 Quick Start
-
-### Installation
-
-**Option 1: Windows Installer (Easiest)**
-```powershell
-# Download and run YeetInstaller.exe
-# Automatically configures file associations
 ```
-
-**Option 2: Build from Source**
-```bash
-# Clone repository
-git clone https://github.com/jakobsstijn/YEETIFF.git
-cd YEETIFF/yeet-project
-
-# Build stable viewer (v2)
-cd yeet-core
-cargo build --release
-
-# Binary will be at: target/release/yeet
-```
-
-**Option 3: Cargo Install**
-```bash
-cargo install --path yeet-core
-```
-
-### Basic Usage
-
-**View a YEET image:**
-```bash
-yeet image.yeet
-```
-
-**Convert PNG to YEET:**
-```bash
-# Basic conversion
-yeet compile photo.png
-
-# Optimized (recommended)
-yeet compile photo.png --compress --binary
-```
-
-**Batch convert folder:**
-```bash
-yeet batch ./my-photos --compress --binary
+YEETIFF/
+├── yeet-core/          # Stable v2 implementation (production) · Rust
+│   └── src/main.rs     # 570+ lines — encoder, decoder, GUI viewer, CLI
+│
+├── yeet-v3/            # Experimental v3 (alpha) · Rust
+│   └── src/main.rs     # ICC profiles, animation, Brotli/Zstd — in progress
+│
+├── yeet-legacy/        # v1 backward compatibility layer · Rust
+│
+├── yeet-installer/     # Windows installer · Python
+│   ├── installer_gui.py     # Tkinter installation wizard
+│   └── build_installer.py   # PyInstaller packaging script
+│
+├── docs/
+│   ├── SPEC_v2.md      # Complete v2 byte-level format specification (650+ lines)
+│   ├── SPEC_v3.md      # v3 feature roadmap and specification (200+ lines)
+│   └── ARCHITECTURE.md # Code organisation and data flow (500+ lines)
+│
+├── examples/           # Sample .yeet files
+├── Cargo.toml          # Workspace manifest
+└── BUILD.md            # Build instructions
 ```
 
 ---
 
-## 📊 Format Comparison
+## Format Specification
 
-### File Size (1920×1080 photo example)
+### v2 File Structure
 
-| Format | Size | Notes |
-|--------|------|-------|
-| **PNG** | 2.1 MB | Lossless, widely supported |
-| **YEET v2 (text)** | 6.2 MB | Human-readable hex |
-| **YEET v2 (binary)** | 6.2 MB | Raw binary data |
-| **YEET v2 (compressed)** | ~500 KB | ⭐ **Recommended** |
-| **YEET v3 (Brotli)** | ~450 KB | 🚧 Planned |
+Every `.yeet` file begins with a fixed header, followed by a variable-length metadata block and the pixel data payload:
+
+```
+Offset   Size     Field              Description
+──────   ──────   ─────              ───────────────────────────────────────────
+0x00     4 B      Magic              ASCII "YEET" — format identifier
+0x04     1 B      Version            0x02 for v2
+0x05     1 B      Flags              Bitfield: compression, alpha, binary mode
+0x06     4 B      Width              Image width in pixels (u32, little-endian)
+0x0A     4 B      Height             Image height in pixels (u32, little-endian)
+0x0E     2 B      Metadata Length    Byte length of JSON block (u16, little-endian)
+0x10     var      Metadata           UTF-8 JSON string (author, timestamp, etc.)
+var      4 B      Data Length        Byte length of pixel data (u32, little-endian)
+var      var      Pixel Data         Raw RGBA bytes, optionally zlib-compressed
+```
+
+**Flags byte breakdown:**
+
+| Bit | Meaning |
+|-----|---------|
+| `0` | Compression enabled (`flate2` / zlib deflate) |
+| `1` | Alpha channel present (RGBA vs RGB) |
+| `2` | Binary mode (raw bytes) vs hex-text mode |
+| `3–7` | Reserved |
+
+### Compression Performance
+
+Real-world measurements on 1920×1080 images:
+
+| Image type | Uncompressed | Compressed | Reduction |
+|------------|-------------|------------|-----------|
+| Photos | 6.2 MB | ~2.5 MB | ~60% |
+| Vector / flat graphics | 6.2 MB | ~1.9 MB | ~70% |
+| Text / UI screenshots | 6.2 MB | ~1.2 MB | ~80% |
 
 ### Format Evolution
 
 ```
-v1 (Legacy)          v2 (Stable)              v3 (Experimental)
-─────────────        ─────────────            ──────────────────
-RGB only             ✅ RGBA                  ✅ RGBA + HDR
-No compression       ✅ zlib                  ✅ zlib/Brotli/Zstd
-Text only            ✅ Text + Binary         ✅ Advanced modes
-8-byte header        ✅ 20+ byte header       ✅ Extended header
-No metadata          ✅ JSON metadata         ✅ Extended EXIF
-6.2 MB (1080p)       ✅ 500 KB (compressed)   🚧 450 KB (planned)
+v1 (legacy)           v2 (stable)              v3 (experimental)
+──────────────        ────────────────          ─────────────────────────
+RGB only              RGBA transparency         RGBA + HDR (16-bit)
+No compression        zlib (flate2)             zlib · Brotli · Zstd
+Text / hex only       Text + binary modes       Extended encoding
+8-byte header         20+ byte header           Extended header + EXIF
+No metadata           JSON metadata block       ICC color profiles
+                                                Multi-frame animation
 ```
+
+Full byte-level documentation: [`docs/SPEC_v2.md`](docs/SPEC_v2.md)
 
 ---
 
-## 📂 Project Structure
+## Quick Start
 
-```
-yeet-project/
-│
-├── 📦 yeet-core/              ⭐ Stable v2 viewer (PRODUCTION)
-│   ├── src/main.rs            570+ lines of production code
-│   ├── Cargo.toml
-│   └── README.md              Complete usage guide
-│
-├── 🔬 yeet-v3/                Experimental next-gen (ALPHA)
-│   ├── src/main.rs            v3 features (ICC, animation)
-│   ├── Cargo.toml
-│   └── README.md              v3 roadmap
-│
-├── 📜 yeet-legacy/            v1 backward compatibility
-│   ├── src/main.rs            Original format support
-│   ├── Cargo.toml
-│   └── README.md              Migration guide
-│
-├── 💿 yeet-installer/         Windows installer
-│   ├── installer_gui.py       Tkinter installation wizard
-│   ├── build_installer.py     PyInstaller build script
-│   └── README.md              Installer documentation
-│
-├── 📚 docs/                   Complete documentation
-│   ├── SPEC_v2.md             650+ lines - v2 specification
-│   ├── SPEC_v3.md             200+ lines - v3 specification
-│   ├── ARCHITECTURE.md        500+ lines - Code organization
-│   └── CONTRIBUTING.md        550+ lines - Contribution guide
-│
-├── 🎯 examples/               Example YEET files
-│   └── README.md              Usage examples
-│
-├── Cargo.toml                 Workspace configuration
-├── README.md                  This file
-├── BUILD.md                   Build instructions
-└── LICENSE                    MIT License
-```
+### Install (Windows)
 
----
+Download `YeetInstaller.exe` from [Releases](https://github.com/7txr/YEETIFF/releases). The installer registers `.yeet` file associations automatically.
 
-## 🎯 Use Cases
-
-### Educational
-
-- **Learn image formats:** Understand headers, compression, metadata
-- **CS courses:** Practical example of file format design
-- **Workshops:** Hands-on format implementation
-
-### Development
-
-- **Format experiments:** Test new compression algorithms
-- **Color science:** ICC profile integration
-- **Animation:** Multi-frame encoding techniques
-
-### Practical
-
-- **Transparency:** Full RGBA support unlike JPEG
-- **Compression:** Better than uncompressed formats
-- **Metadata:** Rich JSON-based information
-
----
-
-## 💻 Command Reference
-
-### Viewing Images
+### Build from Source
 
 ```bash
-# GUI viewer (default)
+git clone https://github.com/7txr/YEETIFF.git
+cd YEETIFF
+
+# Build stable v2
+cargo build --release -p yeet-core
+
+# Run
+./target/release/yeet --help
+```
+
+Requirements: Rust 1.70+, Cargo.
+
+### Basic Usage
+
+```bash
+# Open a .yeet file in the GUI viewer
 yeet image.yeet
 
-# View with scrolling (large images)
-# Automatic scrollable canvas for images > window size
-```
-
-### Converting Images
-
-```bash
-# Basic conversion (uncompressed, hex text)
-yeet compile photo.png
-
-# Optimized conversion (recommended)
+# Convert PNG → YEET (compressed binary, recommended)
 yeet compile photo.png --compress --binary
 
-# Batch convert directory
+# Batch convert a directory
 yeet batch ./photos --compress --binary
 
-# Options:
-#   --compress    Apply zlib compression (40-60% smaller)
-#   --binary      Use binary mode instead of hex text
-```
-
-### Help
-
-```bash
-yeet help
-yeet --help
-yeet -h
+# Convert without compression (human-readable hex, useful for debugging)
+yeet compile photo.png
 ```
 
 ---
 
-## 📖 Documentation
-
-### Format Specifications
-
-- **[YEET v2 Specification](docs/SPEC_v2.md)** - Complete byte-level format documentation
-  - Header structure
-  - Flags and encoding modes
-  - Compression details
-  - Examples and size calculations
-
-- **[YEET v3 Specification](docs/SPEC_v3.md)** - Next-generation features
-  - ICC color profiles
-  - Multi-frame animation
-  - Enhanced compression
-  - HDR support
-
-### Developer Guides
-
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - Code organization
-  - Component breakdown
-  - Data flow diagrams
-  - Build system
-  - Performance considerations
-
-- **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute
-  - Development setup
-  - Code style guidelines
-  - Pull request workflow
-  - Testing requirements
-
-- **[Build Guide](BUILD.md)** - Building from source
-  - Prerequisites
-  - Build commands
-  - Troubleshooting
-  - Distribution
-
-### Component READMEs
-
-- [yeet-core README](yeet-core/README.md) - Stable v2 viewer
-- [yeet-v3 README](yeet-v3/README.md) - Experimental v3
-- [yeet-legacy README](yeet-legacy/README.md) - v1 support
-- [yeet-installer README](yeet-installer/README.md) - Windows installer
-
----
-
-## 🔧 Technical Details
-
-### YEET v2 Format Structure
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         YEET v2 File Structure                      │
-├─────────────────────────────────────────────────────────────────────┤
-│ Magic Bytes       │ "YEET"                        │ 4 bytes         │
-│ Version           │ 0x02                          │ 1 byte          │
-│ Flags             │ Compression/Alpha/Binary      │ 1 byte          │
-│ Width             │ Image width (little-endian)   │ 4 bytes (u32)   │
-│ Height            │ Image height (little-endian)  │ 4 bytes (u32)   │
-│ Metadata Length   │ JSON length (little-endian)   │ 2 bytes (u16)   │
-│ Metadata          │ JSON string                   │ Variable        │
-│ Data Length       │ Pixel data length (LE)        │ 4 bytes (u32)   │
-│ Pixel Data        │ Image data (compressed?)      │ Variable        │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### Compression Ratios
-
-Real-world performance (1920×1080 images):
-
-| Image Type | Uncompressed | Compressed | Reduction |
-|------------|--------------|------------|-----------|
-| Photos | 6.2 MB | 2.5 MB | 60% |
-| Graphics | 6.2 MB | 1.9 MB | 70% |
-| Text/UI | 6.2 MB | 1.2 MB | 80% |
-
-### Dependencies
+## Dependencies
 
 **Rust (yeet-core):**
-- `image` - Image I/O
-- `eframe` - GUI framework
-- `egui_extras` - Image widgets
-- `flate2` - zlib compression
 
-**Python (installer):**
-- `tkinter` - GUI (built-in)
-- `Pillow` - Image handling
-- `pywin32` - Windows registry
-- `PyInstaller` - Exe bundling
+| Crate | Purpose |
+|-------|---------|
+| `image` | PNG / JPEG I/O for conversion |
+| `eframe` + `egui` | Immediate-mode OpenGL GUI |
+| `egui_extras` | Image display widgets |
+| `flate2` | zlib deflate/inflate (compression) |
+
+**Python (yeet-installer):**
+
+| Package | Purpose |
+|---------|---------|
+| `tkinter` | Installer GUI (stdlib) |
+| `Pillow` | Image preview in wizard |
+| `pywin32` | Windows registry — file associations |
+| `PyInstaller` | Bundle to standalone `.exe` |
 
 ---
 
-## 🤝 Contributing
+## Roadmap
 
-We welcome contributions! This is an educational project designed to help people learn.
+**v2.1 (in progress)**
+- Unit test coverage across encoder/decoder
+- Cross-platform CI via GitHub Actions
+- Performance benchmarks against PNG / WebP
 
-### Ways to Contribute
+**v3.0 (planned)**
+- ICC color profile embedding (accurate color reproduction)
+- Multi-frame animation (APNG-style sequences)
+- Brotli and Zstd compression backends
+- 16-bit per channel HDR support
+- Extended EXIF metadata
 
-- 🐛 **Report bugs** - Found an issue? Let us know!
-- 💡 **Suggest features** - Have an idea? Share it!
-- 📝 **Improve docs** - Better explanations and examples
-- 🎨 **Design** - Logo, icons, UI improvements
-- 💻 **Code** - Bug fixes, features, optimizations
-- 🧪 **Tests** - Improve test coverage
+**Future**
+- `yeet-lib` — library API for embedding in other projects
+- WASM viewer for browser-based rendering
+- Package manager distribution (`cargo install yeet`)
 
-### Priority Areas
+---
 
-- 🎨 **Logo design** - We need a YEET logo!
-- 📸 **ICC profiles** - Color management for v3
-- 🎬 **Animation** - Multi-frame support for v3
-- 🗜️ **Compression** - Brotli/Zstd integration
-- 🧪 **Testing** - Increase test coverage
+## Contributing
 
-### Getting Started
+Contributions are welcome. YEETIFF is intentionally kept simple to be a useful learning resource — keep that in mind when proposing changes.
 
 ```bash
-# Fork and clone
-git clone https://github.com/YOUR_USERNAME/YEETIFF.git
-cd YEETIFF/yeet-project
-
-# Build and test
+# Fork, clone, then:
 cargo build --workspace
 cargo test --workspace
-
-# Format and lint
 cargo fmt --all
 cargo clippy --workspace
 ```
 
-See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
+See [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for guidelines on pull requests, code style, and testing requirements.
 
 ---
 
-## 🎓 Learning Resources
+## License
 
-### Understanding Image Formats
-
-- **[PNG Specification](http://www.libpng.org/pub/png/spec/1.2/PNG-Contents.html)** - Learn from PNG
-- **[JPEG Explained](https://www.youtube.com/watch?v=Kv1Hiv3ox8I)** - How JPEG works
-- **[Image Compression](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization)** - Google's guide
-
-### Rust Development
-
-- **[The Rust Book](https://doc.rust-lang.org/book/)** - Official guide
-- **[Rust by Example](https://doc.rust-lang.org/rust-by-example/)** - Practical examples
-- **[Rustlings](https://github.com/rust-lang/rustlings)** - Interactive exercises
-
-### Color Science
-
-- **[ICC Profiles](https://www.color.org/icc_specs2.xalter)** - Color management
-- **[sRGB Standard](https://en.wikipedia.org/wiki/SRGB)** - Standard color space
-
----
-
-## 📊 Project Statistics
-
-### Code Metrics
-
-| Component | Lines | Language | Status |
-|-----------|-------|----------|--------|
-| yeet-core | 570 | Rust | ✅ Production |
-| yeet-v3 | 500 | Rust | 🚧 Alpha |
-| yeet-legacy | 150 | Rust | ✅ Stable |
-| installer | 550 | Python | ✅ Working |
-| **Total Code** | **1,770** | - | - |
-
-### Documentation
-
-| Document | Lines | Purpose |
-|----------|-------|---------|
-| Main README | 350+ | Project overview |
-| SPEC_v2.md | 650+ | v2 format spec |
-| SPEC_v3.md | 200+ | v3 roadmap |
-| ARCHITECTURE.md | 500+ | Code organization |
-| CONTRIBUTING.md | 550+ | Contribution guide |
-| **Total Docs** | **2,400+** | - |
-
----
-
-## 🗺️ Roadmap
-
-### ✅ Completed (v2.0)
-
-- [x] RGBA transparency support
-- [x] zlib compression
-- [x] Binary encoding mode
-- [x] JSON metadata
-- [x] Batch conversion
-- [x] GUI viewer
-- [x] Windows installer
-- [x] Complete documentation
-
-### 🚧 In Progress (v2.1)
-
-- [ ] Unit tests
-- [ ] Example YEET files
-- [ ] Performance benchmarks
-- [ ] Cross-platform testing
-
-### 📋 Planned (v3.0)
-
-- [ ] ICC color profiles
-- [ ] Multi-frame animation
-- [ ] Brotli/Zstd compression
-- [ ] HDR (16-bit) support
-- [ ] Extended EXIF metadata
-- [ ] Animation playback
-
-### 🔮 Future Vision
-
-- [ ] Web viewer (WASM)
-- [ ] Animation editor
-- [ ] Plugin system
-- [ ] Package manager distribution
-- [ ] Library API (yeet-lib)
-
----
-
-## ❓ FAQ
-
-### Is YEET a production-ready format?
-
-YEET v2 is **stable and functional**, but it's primarily an **educational tool**. For production, use PNG, JPEG, or WebP.
-
-### Why create a new image format?
-
-YEET was created to **teach** how image formats work. It's easier to learn from a simple, well-documented format than complex production formats.
-
-### Can I use YEET in my project?
-
-Yes! YEET is MIT licensed. However, consider it **experimental** and best suited for educational purposes.
-
-### How does YEET compare to PNG?
-
-- **Advantages:** Educational, simple structure, good compression
-- **Disadvantages:** Larger files than PNG, not widely supported
-- **Use YEET for:** Learning, experiments, education
-- **Use PNG for:** Production, web, wide compatibility
-
-### Does YEET support lossy compression?
-
-No, YEET uses **lossless compression** (zlib). All data is preserved.
-
-### Will v3 replace v2?
-
-No! v2 will remain **stable and supported**. v3 is **experimental** and may change frequently.
-
----
-
-## 🏆 Acknowledgments
-
-### Technologies
-
-- **[Rust](https://www.rust-lang.org/)** - Systems programming language
-- **[egui](https://github.com/emilk/egui)** - Immediate mode GUI
-- **[image-rs](https://github.com/image-rs/image)** - Image processing
-- **[flate2](https://github.com/rust-lang/flate2-rs)** - Compression
-
-### Inspiration
-
-- **PNG** - Well-designed, documented format
-- **WebP** - Modern compression techniques
-- **APNG** - Animation approach
-
-### Community
-
-- **Rust Community** - Excellent crates and support
-- **Open Source** - Standing on the shoulders of giants
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License - Copyright (c) 2025 Stijn Jakobs
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software...
-```
-
----
-
-## 👤 Author
-
-**Stijn Jakobs**
-
-- 🌐 GitHub: [@jakobsstijn](https://github.com/jakobsstijn)
-- 📦 Repository: [YEETIFF](https://github.com/jakobsstijn/YEETIFF)
-
-### Professional Roles
-
-- 🌐 **Network Developer** @ AstroidMC
-- 🎨 **Creative Director** @ Ordnary
-
----
-
-## 🔗 Links
-
-- **📦 Repository:** [github.com/jakobsstijn/YEETIFF](https://github.com/jakobsstijn/YEETIFF)
-- **🐛 Issues:** [Report a Bug](https://github.com/jakobsstijn/YEETIFF/issues)
-- **💬 Discussions:** [Ask Questions](https://github.com/jakobsstijn/YEETIFF/discussions)
-- **📖 Docs:** [Complete Documentation](docs/)
-- **⬇️ Releases:** [Download Installer](https://github.com/jakobsstijn/YEETIFF/releases)
-
----
-
-## 🎯 Quick Links
-
-| Resource | Link |
-|----------|------|
-| **Installation** | [Quick Start](#-quick-start) |
-| **Format Spec** | [SPEC_v2.md](docs/SPEC_v2.md) |
-| **Contributing** | [CONTRIBUTING.md](docs/CONTRIBUTING.md) |
-| **Building** | [BUILD.md](BUILD.md) |
-| **Architecture** | [ARCHITECTURE.md](docs/ARCHITECTURE.md) |
-| **Examples** | [examples/](examples/) |
+MIT — see [LICENSE](LICENSE) for details.
 
 ---
 
 <div align="center">
-
-### Made with ❤️ for education and experimentation
-
-⭐ **Star this repo if you find it useful!** ⭐
-
-**Learning • Experimenting • Building • Sharing**
-
-[![GitHub stars](https://img.shields.io/github/stars/jakobsstijn/YEETIFF.svg?style=social&label=Star)](https://github.com/jakobsstijn/YEETIFF)
-[![GitHub forks](https://img.shields.io/github/forks/jakobsstijn/YEETIFF.svg?style=social&label=Fork)](https://github.com/jakobsstijn/YEETIFF/fork)
-
+  <sub>Built by <a href="https://github.com/7txr">7txr</a> · Part of the <a href="https://github.com/ordnary-com">Ordnary</a> ecosystem</sub>
 </div>
